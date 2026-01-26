@@ -283,3 +283,4 @@ while True:
     screen.blit(font.render(f"{coins}", True, BLACK), (WIDTH - 80, 60))
 
     pygame.display.flip()
+
