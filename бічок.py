@@ -8,6 +8,14 @@ import os
 pygame.mixer.pre_init(44100, -16, 2, 512)  # краща сумісність для wav
 pygame.init()
 
+# --- Фоновий звук ---
+try:
+    pygame.mixer.music.load("fon.wav")
+    pygame.mixer.music.set_volume(0.4)  # гучність (0.0 – 1.0)
+except pygame.error as e:
+    print("Не вдалося завантажити fon.wav:", e)
+
+ 
 # --- Завантаження звуків ---
 try:
     sound_fruit = pygame.mixer.Sound("fonarik.wav")
@@ -202,6 +210,8 @@ while True:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if not game_started or game_over:
                 fruits_on_screen, bombs_on_screen, score, lives, game_started, game_over, spawn_rate = reset_game()
+                pygame.mixer.music.play(-1)  # -1 = грати безкінечно
+
             if stop_button.collidepoint(mouse_pos) and not paused:
                 paused = True
             if paused and continue_button.collidepoint(mouse_pos):
@@ -284,3 +294,4 @@ while True:
 
     pygame.display.flip()
 
+pygame.mixer.music.stop()
