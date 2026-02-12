@@ -16,6 +16,7 @@ except pygame.error as e:
     print("Не вдалося завантажити fon.wav:", e)
 
  
+menybe = pygame.image.load("JKL.png")
 # --- Завантаження звуків ---
 try:
     sound_fruit = pygame.mixer.Sound("fonarik.wav")
@@ -75,7 +76,7 @@ def save_coins(coins):
 
 # --- Ініціалізація гри ---
 def reset_game():
-    return [], [], 0, 10.0, True, False, 1
+    return [], [], 0, 10.0, 1
 
 fruits_on_screen = []
 bombs_on_screen = []
@@ -86,7 +87,7 @@ game_started = False
 game_over = False
 spawn_rate = 1
 paused = False
-
+state = "menu"
 # --- Катана ---
 KATANA_LENGTH = 130
 BLADE_END = 95
@@ -185,8 +186,8 @@ def draw_coin(surface, pos, radius):
     pygame.draw.line(surface, ORANGE, (pos[0]-radius//2, pos[1]), (pos[0]+radius//2, pos[1]), 2)
     pygame.draw.line(surface, ORANGE, (pos[0], pos[1]-radius//2), (pos[0], pos[1]+radius//2), 2)
 
-def draw_button(surface, rect, text):
-    pygame.draw.rect(surface, ORANGE, rect)
+def draw_button(surface, rect, text, color): 
+    pygame.draw.rect(surface, color, rect)
     pygame.draw.rect(surface, BLACK, rect, 2)
     label = font.render(text, True, BLACK)
     surface.blit(label, (rect.x + rect.width//2 - label.get_width()//2,
@@ -195,12 +196,12 @@ def draw_button(surface, rect, text):
 # --- Головний цикл ---
 while True:
     clock.tick(60)
-    draw_background()
+    
     mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
-    mouse_clicked = pygame.mouse.get_pressed()[0]
+    #mouse_clicked = pygame.mouse.get_pressed()[0]
+    mouse_clicked = False
 
-    stop_button = pygame.Rect(15, 10, 100, 40)
-    continue_button = pygame.Rect(WIDTH//2-100, HEIGHT//2-25, 200, 50)
+ 
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -208,90 +209,128 @@ while True:
             pygame.quit()
             sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if not game_started or game_over:
-                fruits_on_screen, bombs_on_screen, score, lives, game_started, game_over, spawn_rate = reset_game()
-                pygame.mixer.music.play(-1)  # -1 = грати безкінечно
+            mouse_clicked = True
+         #   if not game_started or game_over:
+            #    fruits_on_screen, bombs_on_screen, score, lives, game_started, game_over, spawn_rate = reset_game()
+            #    pygame.mixer.music.play(-1)  # -1 = грати безкінечно
+    if state == "menu":
+        rostaqag = pygame.transform.scale(menybe,(WIDTH, HEIGHT))
+        screen.blit(rostaqag, (0,0))
 
-            if stop_button.collidepoint(mouse_pos) and not paused:
-                paused = True
-            if paused and continue_button.collidepoint(mouse_pos):
-                paused = False
+        buttonplay = pygame.Rect(WIDTH// 2 -100, 250, 200, 67)
+        buttonSKIN = pygame.Rect(WIDTH// 2 -100, 320, 200, 67)
+        buttonmagazzine = pygame.Rect(WIDTH// 2 -100, 390, 200, 67)
 
-    if not game_started:
-        screen.blit(big_font.render("NINJA FRUIT", True, BLACK), (260, 200))
-        screen.blit(font.render("Click to Start", True, BLACK), (360, 280))
-        pygame.display.flip()
-        continue
+        draw_button(screen, buttonplay, "play", RED)
+        draw_button(screen, buttonSKIN, "skin", RED)
+        draw_button(screen, buttonmagazzine, "magazzine", RED)
 
-    if game_over:
-        screen.blit(big_font.render("GAME OVER", True, BLACK), (290, 220))
-        screen.blit(font.render("Click to play again", True, BLACK), (330, 300))
-        pygame.display.flip()
-        continue
+        if mouse_clicked:
+            if buttonplay.collidepoint(mouse_pos):
+                fruits_on_screen, bombs_on_screen, score, lives, spawn_rate = reset_game()
+                state = "game"
+                pygame.mixer.music.play(-1)
+    
+    elif state == "game":
+        draw_background()
+        stop_button = pygame.Rect(15, 10, 100, 40) 
+        continue_button = pygame.Rect(WIDTH//2-100, HEIGHT//2-25, 200, 50)
 
-    if paused:
-        overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
-        overlay.fill(OVERLAY)
-        screen.blit(overlay, (0,0))
-        draw_button(screen, continue_button, "Продовжити")
-        pygame.display.flip()
-        continue
+        if mouse_clicked and stop_button.collidepoint(mouse_pos) and not paused:
+            paused = True
+            
+    #if not game_started:
+       # screen.blit(big_font.render("NINJA FRUIT", True, BLACK), (260, 200))
+        #screen.blit(font.render("Click to Start", True, BLACK), (360, 280))
+       # pygame.display.flip()
+       # continue
 
-    mouse_delta = mouse_pos - last_mouse_pos
-    katana_angle = max(-70, min(70, -mouse_delta.x * 3))
-    last_mouse_pos = mouse_pos
+    #if game_over:
+       # screen.blit(big_font.render("GAME OVER", True, BLACK), (290, 220))
+       # screen.blit(font.render("Click to play again", True, BLACK), (330, 300))
+       # pygame.display.flip()
+      # continue
 
-    rotated = pygame.transform.rotate(katana_base, katana_angle)
-    offset = pygame.Vector2(HANDLE_CENTER_X - KATANA_LENGTH//2, 0).rotate(-katana_angle)
-    katana_rect = rotated.get_rect(center=mouse_pos - offset)
+        if paused:
+            overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
+            overlay.fill(OVERLAY)
+            screen.blit(overlay, (0,0))
+            draw_button(screen, continue_button, "Продовжити", RED)
+            knopkadlqmeny = pygame.Rect( WIDTH //2 -100, 367, 200, 67)
+            draw_button(screen, knopkadlqmeny, "go to menu", RED)
+            if mouse_clicked:
+                if continue_button.collidepoint(mouse_pos):
+                    paused = False
+                elif knopkadlqmeny.collidepoint(mouse_pos):
+                    save_coins(coins)
+                    paused = False
+                    state = "menu"
+                    
+            pygame.display.flip()
+            continue
 
-    blade_a = pygame.Vector2(0, 13).rotate(-katana_angle) + katana_rect.center
-    blade_b = pygame.Vector2(BLADE_END, 13).rotate(-katana_angle) + katana_rect.center
+        mouse_delta = mouse_pos - last_mouse_pos
+        katana_angle = max(-70, min(70, -mouse_delta.x * 3))
+        last_mouse_pos = mouse_pos
 
-    if random.randint(1, max(1,int(60/spawn_rate))) == 1:
-        fruits_on_screen.append(Fruit())
-    if random.randint(1, 120) == 1:
-        bombs_on_screen.append(Bomb())
+        rotated = pygame.transform.rotate(katana_base, katana_angle)
+        offset = pygame.Vector2(HANDLE_CENTER_X - KATANA_LENGTH//2, 0).rotate(-katana_angle)
+        katana_rect = rotated.get_rect(center=mouse_pos - offset)
 
-    for fruit in fruits_on_screen[:]:
-        fruit.update()
-        fruit.draw()
-        if fruit.hit_by_blade(blade_a, blade_b):
-            fruits_on_screen.remove(fruit)
-            lives += 1
-            coins += 1
-            if sound_fruit:
-                sound_fruit.play()
-        elif fruit.y > HEIGHT + fruit.radius:
-            fruits_on_screen.remove(fruit)
-            lives -= 0.5
-            if lives <= 0:
-                lives = 0
-                game_over = True
+        blade_a = pygame.Vector2(0, 13).rotate(-katana_angle) + katana_rect.center
+        blade_b = pygame.Vector2(BLADE_END, 13).rotate(-katana_angle) + katana_rect.center
 
-    for bomb in bombs_on_screen[:]:
-        bomb.update()
-        bomb.draw()
-        if bomb.hit_by_blade(blade_a, blade_b):
-            bombs_on_screen.remove(bomb)
-            lives -= 1
-            coins -= 1
-            if sound_bomb:
-                sound_bomb.play()
-            if lives <= 0:
-                lives = 0
-                game_over = True
-        elif bomb.y > HEIGHT + bomb.radius:
-            bombs_on_screen.remove(bomb)
+        if random.randint(1, max(1,int(60/spawn_rate))) == 1:
+            fruits_on_screen.append(Fruit())
+        if random.randint(1, 120) == 1:
+            bombs_on_screen.append(Bomb())
 
-    spawn_rate += 0.001
+        for fruit in fruits_on_screen[:]:
+            fruit.update()
+            fruit.draw()
+            if fruit.hit_by_blade(blade_a, blade_b):
+                fruits_on_screen.remove(fruit)
+                lives += 1
+                coins += 1
+                if sound_fruit:
+                    sound_fruit.play()
+            elif fruit.y > HEIGHT + fruit.radius:
+                fruits_on_screen.remove(fruit)
+                lives -= 0.5
+                if lives <= 0:
+                    lives = 0
+                    #game_over = True
 
-    screen.blit(rotated, katana_rect.topleft)
-    draw_button(screen, stop_button, "STOP")
-    screen.blit(font.render(f"Lives: {int(lives)}", True, BLACK), (130, 20))
-    draw_coin(screen, (WIDTH - 60, 30), 20)
-    screen.blit(font.render(f"{coins}", True, BLACK), (WIDTH - 80, 60))
+        for bomb in bombs_on_screen[:]:
+            bomb.update()
+            bomb.draw()
+            if bomb.hit_by_blade(blade_a, blade_b):
+                bombs_on_screen.remove(bomb)
+                lives -= 1
+                coins -= 1
+                if sound_bomb:
+                    sound_bomb.play()
+                if lives <= 0:
+                    lives = 0
+                    game_over = True
+            elif bomb.y > HEIGHT + bomb.radius:
+                bombs_on_screen.remove(bomb)
 
+        spawn_rate += 0.001
+
+        screen.blit(rotated, katana_rect.topleft)
+        draw_button(screen, stop_button, "STOP", RED)
+        screen.blit(font.render(f"Lives: {int(lives)}", True, BLACK), (130, 20))
+        draw_coin(screen, (WIDTH - 60, 30), 20)
+        screen.blit(font.render(f"{coins}", True, BLACK), (WIDTH - 80, 60))
+        if lives<=0 :
+            screen.blit(big_font.render("GAME OVER", True, BLACK), (290, 220))
+            pygame.display.flip()
+            pygame.time.delay(2000)
+            save_coins(coins)
+            pygame.mixer.music.stop()
+            state = "menu"
+
+      # continue
     pygame.display.flip()
 
-pygame.mixer.music.stop()
