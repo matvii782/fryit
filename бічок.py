@@ -17,6 +17,22 @@ except pygame.error as e:
 
  
 menybe = pygame.image.load("JKL.png")
+bananakatana = pygame.image.load("бананкатана.png.png").convert_alpha()
+morkvanakatana = pygame.image.load("морквакатана.png.png").convert_alpha()
+grytokatana = pygame.image.load("груткатана.png.png").convert_alpha()
+defoltkatana= pygame.image.load("дефолт.png.png").convert_alpha()
+piratzykakatana = pygame.image.load("піратськакатана.png.png").convert_alpha()
+zolotakatana= pygame.image.load("золотакатана.png.png").convert_alpha()
+kavynovakatana = pygame.image.load("кавунокатана.pngL.png").convert_alpha()
+
+bananakatana = pygame.transform.scale(bananakatana, (130,42))
+morkvanakatana = pygame.transform.scale(morkvanakatana, (130,42))
+grytokatana = pygame.transform.scale(grytokatana, (130,42))
+defoltkatana = pygame.transform.scale(defoltkatana, (130,42))
+piratzykakatana = pygame.transform.scale(piratzykakatana, (130,42))
+zolotakatana = pygame.transform.scale(zolotakatana, (130,42))
+kavynovakatana = pygame.transform.scale(kavynovakatana, (130,42))
+
 # --- Завантаження звуків ---
 try:
     sound_fruit = pygame.mixer.Sound("fonarik.wav")
@@ -37,6 +53,16 @@ pygame.display.set_caption("Ninja Fruit")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 36)
 big_font = pygame.font.SysFont(None, 72)
+
+SKINS = [
+    {"name":"defoltkatana", "file": defoltkatana, "price": 0}, 
+    {"name":"piratzykakatana", "file": piratzykakatana, "price": 300},
+    {"name":"zolotakatana", "file": zolotakatana, "price": 700},
+    {"name":"grytokatana", "file": grytokatana, "price": 999},
+    {"name":"morkvanakatana", "file": morkvanakatana, "price": 1500},
+    {"name":"kavynovakatana", "file": kavynovakatana, "price": 3333},
+    {"name":"bananakatana", "file": bananakatana, "price": 9999}
+]
 
 # --- Кольори ---
 WHITE = (245, 245, 245)
@@ -60,7 +86,7 @@ FRUITS = [
 
 # --- Функції збереження / завантаження монет ---
 COINS_FILE = "coins.txt"
-
+SKINS_FILE = "skin.txt"
 def load_coins():
     if os.path.exists(COINS_FILE):
         with open(COINS_FILE, "r") as f:
@@ -73,6 +99,16 @@ def load_coins():
 def save_coins(coins):
     with open(COINS_FILE, "w") as f:
         f.write(str(int(coins)))
+
+def load_skins():
+    if os.path.exists(SKINS_FILE):
+        with open(SKINS_FILE, "r") as f:
+           return [int(x)for x in f.read().split(",")]
+    return [0]
+
+def save_skins(skins_kypleni):
+    with open(SKINS_FILE, "w") as f:
+        f.write(",".join(map(str,skins_kypleni)))
 
 # --- Ініціалізація гри ---
 def reset_game():
@@ -88,15 +124,15 @@ game_over = False
 spawn_rate = 1
 paused = False
 state = "menu"
+skins_kypleni = load_skins()
+pochekayskin = 0
+natobibrat = 0
 # --- Катана ---
 KATANA_LENGTH = 130
 BLADE_END = 95
 HANDLE_CENTER_X = 112
 
-katana_base = pygame.Surface((KATANA_LENGTH, 26), pygame.SRCALPHA)
-pygame.draw.rect(katana_base, (200, 200, 200), (0, 10, 95, 6))
-pygame.draw.rect(katana_base, BROWN, (95, 6, 35, 14))
-
+katana_base = SKINS[natobibrat]["file"]
 katana_angle = 0
 last_mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
 
@@ -229,8 +265,50 @@ while True:
             if buttonplay.collidepoint(mouse_pos):
                 fruits_on_screen, bombs_on_screen, score, lives, spawn_rate = reset_game()
                 state = "game"
+                katana_base = SKINS[natobibrat]["file"]
                 pygame.mixer.music.play(-1)
-    
+            elif buttonmagazzine.collidedict(mouse_pos):
+                state = "magazine"
+    elif state == "magazine":
+        screen.fill((255, 215, 0))
+        nazar = pygame.Rect(10, 10, 100, 42)
+        knopkavlivova = pygame.Rect(WIDTH//2 - 200, HEIGHT//2 -25, 52, 52)
+        knopkavpravova = pygame.Rect(WIDTH//2 + 200, HEIGHT//2 -25, 52, 52)
+        kyputuvovy = pygame.Rect(WIDTH//2 - 111, 450, 222, 67)
+        draw_button(screen, nazar, "назад", RED)
+        draw_button(screen, knopkavlivova, "<", RED)
+        draw_button(screen, knopkavpravova, ">", RED)
+        
+        skin = SKINS[pochekayskin]
+        skinmagazini = pygame.transform.scale(skin["file"], (260,80))
+        screen.blit(skinmagazini,(WIDTH//2 - 130, HEIGHT//2 - 40))
+
+        name_txt = font.render(skin["name"], True, BLACK)
+        screen.blit(name_txt, (WIDTH//2 - name_txt.get_width()//2, HEIGHT//2 - 80))
+        draw_coin(screen, (WIDTH - 60, 30), 20)
+        screen.blit(font.render(f"{coins}", True, BLACK), (WIDTH - 80, 60))
+
+        # Логіка кнопки Дії
+        if pochekayskin == natobibrat:
+            draw_button(screen, natobibrat, "Equipped", GREEN)
+        elif pochekayskin in skins_kypleni:
+            draw_button(screen, natobibrat, "Wear", YELLOW)
+        else:
+            draw_button(screen, natobibrat, f"Buy: {skin['price']}", ORANGE)
+
+        if mouse_clicked:
+            if nazar.collidepoint(mouse_pos): state = "menu"
+            elif knopkavlivova.collidepoint(mouse_pos): pochekayskin = (pochekayskin - 1) % len(SKINS)
+            elif knopkavpravova.collidepoint(mouse_pos): pochekayskin = (pochekayskin + 1) % len(SKINS)
+            elif kyputuvovy.collidepoint(mouse_pos):
+                if pochekayskin in skins_kypleni:
+                    active_skin_idx = pochekayskin
+                elif coins >= skin["price"]:
+                    coins -= skin["price"]
+                    kyputuvovy.append(pochekayskin)
+                    active_skin_idx = pochekayskin
+                    save_coins(coins)
+                    save_skins(kyputuvovy)
     elif state == "game":
         draw_background()
         stop_button = pygame.Rect(15, 10, 100, 40) 
