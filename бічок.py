@@ -5,33 +5,44 @@ import sys
 import os
 
 # --- Ініціалізація Pygame та звуків ---
-pygame.mixer.pre_init(44100, -16, 2, 512)  # краща сумісність для wav
+pygame.mixer.pre_init(44100, -16, 2, 512)
 pygame.init()
+
+# --- Вікно ---
+WIDTH, HEIGHT = 900, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Ninja Fruit")
+clock = pygame.time.Clock()
+font = pygame.font.SysFont(None, 36)
+big_font = pygame.font.SysFont(None, 72)
 
 # --- Фоновий звук ---
 try:
     pygame.mixer.music.load("fon.wav")
-    pygame.mixer.music.set_volume(0.4)  # гучність (0.0 – 1.0)
+    pygame.mixer.music.set_volume(0.4)
 except pygame.error as e:
     print("Не вдалося завантажити fon.wav:", e)
 
- 
-menybe = pygame.image.load("JKL.png")
-bananakatana = pygame.image.load("бананкатана.png.png").convert_alpha()
-morkvanakatana = pygame.image.load("морквакатана.png.png").convert_alpha()
-grytokatana = pygame.image.load("груткатана.png.png").convert_alpha()
-defoltkatana= pygame.image.load("дефолт.png.png").convert_alpha()
-piratzykakatana = pygame.image.load("піратськакатана.png.png").convert_alpha()
-zolotakatana= pygame.image.load("золотакатана.png.png").convert_alpha()
-kavynovakatana = pygame.image.load("кавунокатана.pngL.png").convert_alpha()
+try:
+    menybe = pygame.image.load("JKL.png")
+    bananakatana = pygame.image.load("бананкатана.png.png").convert_alpha()
+    morkvanakatana = pygame.image.load("морквакатана.png.png").convert_alpha()
+    grytokatana = pygame.image.load("груткатана.png.png").convert_alpha()
+    defoltkatana= pygame.image.load("дефолт.png.png").convert_alpha()
+    piratzykakatana = pygame.image.load("піратськакатана.png.png").convert_alpha()
+    zolotakatana= pygame.image.load("золотакатана.png.png").convert_alpha()
+    kavynovakatana = pygame.image.load("кавунокатана.png.png").convert_alpha()
 
-bananakatana = pygame.transform.scale(bananakatana, (130,42))
-morkvanakatana = pygame.transform.scale(morkvanakatana, (130,42))
-grytokatana = pygame.transform.scale(grytokatana, (130,42))
-defoltkatana = pygame.transform.scale(defoltkatana, (130,42))
-piratzykakatana = pygame.transform.scale(piratzykakatana, (130,42))
-zolotakatana = pygame.transform.scale(zolotakatana, (130,42))
-kavynovakatana = pygame.transform.scale(kavynovakatana, (130,42))
+    bananakatana = pygame.transform.scale(bananakatana, (130,42))
+    morkvanakatana = pygame.transform.scale(morkvanakatana, (130,42))
+    grytokatana = pygame.transform.scale(grytokatana, (130,42))
+    defoltkatana = pygame.transform.scale(defoltkatana, (130,42))
+    piratzykakatana = pygame.transform.scale(piratzykakatana, (130,42))
+    zolotakatana = pygame.transform.scale(zolotakatana, (130,42))
+    kavynovakatana = pygame.transform.scale(kavynovakatana, (130,42))
+except pygame.error as e:
+    print("Помилка завантаження зображень. Перевірте шляхи:", e)
+    sys.exit()
 
 # --- Завантаження звуків ---
 try:
@@ -45,14 +56,6 @@ try:
 except pygame.error as e:
     print("Не вдалося завантажити oplata.wav:", e)
     sound_bomb = None
-
-# --- Вікно ---
-WIDTH, HEIGHT = 900, 600
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Ninja Fruit")
-clock = pygame.time.Clock()
-font = pygame.font.SysFont(None, 36)
-big_font = pygame.font.SysFont(None, 72)
 
 SKINS = [
     {"name":"defoltkatana", "file": defoltkatana, "price": 0}, 
@@ -127,10 +130,11 @@ state = "menu"
 skins_kypleni = load_skins()
 pochekayskin = 0
 natobibrat = 0
+
 # --- Катана ---
 KATANA_LENGTH = 130
 BLADE_END = 95
-HANDLE_CENTER_X = 112
+HANDLE_CENTER_X = 112\
 
 katana_base = SKINS[natobibrat]["file"]
 katana_angle = 0
@@ -138,7 +142,7 @@ last_mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
 
 # --- Класи Fruit і Bomb ---
 class Fruit:
-    def __init__(self):
+    def init(self):
         self.type = random.choice(FRUITS)
         self.radius = random.randint(25, 35)
         self.x = random.randint(self.radius, WIDTH - self.radius)
@@ -234,10 +238,7 @@ while True:
     clock.tick(60)
     
     mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
-    #mouse_clicked = pygame.mouse.get_pressed()[0]
     mouse_clicked = False
-
- 
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -246,9 +247,7 @@ while True:
             sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_clicked = True
-         #   if not game_started or game_over:
-            #    fruits_on_screen, bombs_on_screen, score, lives, game_started, game_over, spawn_rate = reset_game()
-            #    pygame.mixer.music.play(-1)  # -1 = грати безкінечно
+
     if state == "menu":
         rostaqag = pygame.transform.scale(menybe,(WIDTH, HEIGHT))
         screen.blit(rostaqag, (0,0))
@@ -266,15 +265,20 @@ while True:
                 fruits_on_screen, bombs_on_screen, score, lives, spawn_rate = reset_game()
                 state = "game"
                 katana_base = SKINS[natobibrat]["file"]
-                pygame.mixer.music.play(-1)
-            elif buttonmagazzine.collidedict(mouse_pos):
+                try:
+                    pygame.mixer.music.play(-1)
+                except:
+                    pass
+            elif buttonmagazzine.collidepoint(mouse_pos): 
                 state = "magazine"
+
     elif state == "magazine":
         screen.fill((255, 215, 0))
         nazar = pygame.Rect(10, 10, 100, 42)
         knopkavlivova = pygame.Rect(WIDTH//2 - 200, HEIGHT//2 -25, 52, 52)
         knopkavpravova = pygame.Rect(WIDTH//2 + 200, HEIGHT//2 -25, 52, 52)
         kyputuvovy = pygame.Rect(WIDTH//2 - 111, 450, 222, 67)
+        
         draw_button(screen, nazar, "назад", RED)
         draw_button(screen, knopkavlivova, "<", RED)
         draw_button(screen, knopkavpravova, ">", RED)
@@ -288,27 +292,30 @@ while True:
         draw_coin(screen, (WIDTH - 60, 30), 20)
         screen.blit(font.render(f"{coins}", True, BLACK), (WIDTH - 80, 60))
 
-        # Логіка кнопки Дії
         if pochekayskin == natobibrat:
-            draw_button(screen, natobibrat, "Equipped", GREEN)
+            draw_button(screen, kyputuvovy, "Equipped", GREEN)
         elif pochekayskin in skins_kypleni:
-            draw_button(screen, natobibrat, "Wear", YELLOW)
+            draw_button(screen, kyputuvovy, "Wear", YELLOW)
         else:
-            draw_button(screen, natobibrat, f"Buy: {skin['price']}", ORANGE)
+            draw_button(screen, kyputuvovy, f"Buy: {skin['price']}", ORANGE)
 
         if mouse_clicked:
-            if nazar.collidepoint(mouse_pos): state = "menu"
-            elif knopkavlivova.collidepoint(mouse_pos): pochekayskin = (pochekayskin - 1) % len(SKINS)
-            elif knopkavpravova.collidepoint(mouse_pos): pochekayskin = (pochekayskin + 1) % len(SKINS)
+            if nazar.collidepoint(mouse_pos): 
+                state = "menu"
+            elif knopkavlivova.collidepoint(mouse_pos): 
+                pochekayskin = (pochekayskin - 1) % len(SKINS)
+            elif knopkavpravova.collidepoint(mouse_pos): 
+                pochekayskin = (pochekayskin + 1) % len(SKINS)
             elif kyputuvovy.collidepoint(mouse_pos):
                 if pochekayskin in skins_kypleni:
-                    active_skin_idx = pochekayskin
+                    natobibrat = pochekayskin 
                 elif coins >= skin["price"]:
                     coins -= skin["price"]
-                    kyputuvovy.append(pochekayskin)
-                    active_skin_idx = pochekayskin
+                    skins_kypleni.append(pochekayskin) 
+                    natobibrat = pochekayskin 
                     save_coins(coins)
-                    save_skins(kyputuvovy)
+                    save_skins(skins_kypleni) 
+
     elif state == "game":
         draw_background()
         stop_button = pygame.Rect(15, 10, 100, 40) 
@@ -316,20 +323,8 @@ while True:
 
         if mouse_clicked and stop_button.collidepoint(mouse_pos) and not paused:
             paused = True
-            
-    #if not game_started:
-       # screen.blit(big_font.render("NINJA FRUIT", True, BLACK), (260, 200))
-        #screen.blit(font.render("Click to Start", True, BLACK), (360, 280))
-       # pygame.display.flip()
-       # continue
 
-    #if game_over:
-       # screen.blit(big_font.render("GAME OVER", True, BLACK), (290, 220))
-       # screen.blit(font.render("Click to play again", True, BLACK), (330, 300))
-       # pygame.display.flip()
-      # continue
-
-        if paused:
+if paused:
             overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
             overlay.fill(OVERLAY)
             screen.blit(overlay, (0,0))
@@ -377,7 +372,6 @@ while True:
                 lives -= 0.5
                 if lives <= 0:
                     lives = 0
-                    #game_over = True
 
         for bomb in bombs_on_screen[:]:
             bomb.update()
@@ -390,7 +384,6 @@ while True:
                     sound_bomb.play()
                 if lives <= 0:
                     lives = 0
-                    game_over = True
             elif bomb.y > HEIGHT + bomb.radius:
                 bombs_on_screen.remove(bomb)
 
@@ -401,7 +394,8 @@ while True:
         screen.blit(font.render(f"Lives: {int(lives)}", True, BLACK), (130, 20))
         draw_coin(screen, (WIDTH - 60, 30), 20)
         screen.blit(font.render(f"{coins}", True, BLACK), (WIDTH - 80, 60))
-        if lives<=0 :
+        
+        if lives <= 0:
             screen.blit(big_font.render("GAME OVER", True, BLACK), (290, 220))
             pygame.display.flip()
             pygame.time.delay(2000)
@@ -409,6 +403,4 @@ while True:
             pygame.mixer.music.stop()
             state = "menu"
 
-      # continue
     pygame.display.flip()
-
