@@ -134,7 +134,7 @@ natobibrat = 0
 # --- Катана ---
 KATANA_LENGTH = 130
 BLADE_END = 95
-HANDLE_CENTER_X = 112\
+HANDLE_CENTER_X = 112
 
 katana_base = SKINS[natobibrat]["file"]
 katana_angle = 0
@@ -142,7 +142,7 @@ last_mouse_pos = pygame.Vector2(pygame.mouse.get_pos())
 
 # --- Класи Fruit і Bomb ---
 class Fruit:
-    def init(self):
+    def __init__(self):
         self.type = random.choice(FRUITS)
         self.radius = random.randint(25, 35)
         self.x = random.randint(self.radius, WIDTH - self.radius)
@@ -324,7 +324,7 @@ while True:
         if mouse_clicked and stop_button.collidepoint(mouse_pos) and not paused:
             paused = True
 
-if paused:
+        if paused:
             overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
             overlay.fill(OVERLAY)
             screen.blit(overlay, (0,0))
@@ -338,7 +338,7 @@ if paused:
                     save_coins(coins)
                     paused = False
                     state = "menu"
-                    
+            
             pygame.display.flip()
             continue
 
