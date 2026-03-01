@@ -106,7 +106,10 @@ def save_coins(coins):
 def load_skins():
     if os.path.exists(SKINS_FILE):
         with open(SKINS_FILE, "r") as f:
-           return [int(x)for x in f.read().split(",")]
+            data = f.read().strip()
+            if not data:
+                return [0]
+            return [int(x) for x in data.split(",") if x.strip().isdigit()]
     return [0]
 
 def save_skins(skins_kypleni):
